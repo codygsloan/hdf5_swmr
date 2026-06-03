@@ -101,11 +101,14 @@ configure_test_env() {
             done
 
             # Configure basic command paths
-            writer_cmd="$PROJECT_DIR/test/vfd_swmr_attrdset_writer"
-            reader_cmd="$PROJECT_DIR/test/vfd_swmr_attrdset_reader"
+            writer_cmd="${PROJECT_DIR}/test/vfd_swmr_attrdset_writer"
+            reader_cmd="${PROJECT_DIR}/test/vfd_swmr_attrdset_reader"
             aux_proc_cmd="" # No aux process for attrdset test
             generated_files="vfd_swmr_attrdset.h5 attrdset-shadow"
-            ;;
+
+            
+            # configuration file path for HDF5_VFD_SWMR_CONFIG env variable
+            config_file="${PROJECT_DIR}/test/attrdset_swmr_config.txt"
         bigset)
             # Reconstructed options from test_vfd_swmr.sh's "bigset" tests
             # May need to increase -l value if NFS latency causes failures.
@@ -197,12 +200,15 @@ configure_test_env() {
             
 
             # Configure basic command paths
-            writer_cmd="$PROJECT_DIR/test/vfd_swmr_bigset_writer"
-            reader_cmd="$PROJECT_DIR/test/vfd_swmr_bigset_reader"
+            writer_cmd="${PROJECT_DIR}/test/vfd_swmr_bigset_writer"
+            reader_cmd="${PROJECT_DIR}/test/vfd_swmr_bigset_reader"
             md_file_path="$md_dir/mdfile"
-            aux_proc_cmd="$PROJECT_DIR/utils/vfd_swmr/aux_process $md_file_path bigset_updater"
-            Maux_proc_cmd="$PROJECT_DIR/utils/vfd_swmr/aux_process -a $md_file_path bigset_updater" # For -M option
+            aux_proc_cmd="${PROJECT_DIR}/utils/vfd_swmr/aux_process $md_file_path bigset_updater"
+            Maux_proc_cmd="${PROJECT_DIR}/utils/vfd_swmr/aux_process -a $md_file_path bigset_updater" # For -M option
             generated_files="bigset_updater.* vfd_swmr_bigset.h5 mdfile"
+
+            # configuration file path for HDF5_VFD_SWMR_CONFIG env variable
+            config_file=""
             ;;
         dsetchks)
             swmr_shared_opts=(
@@ -237,10 +243,13 @@ configure_test_env() {
             done
 
             # Configure basic command paths
-            writer_cmd="$PROJECT_DIR/test/vfd_swmr_dsetchks_writer"
-            reader_cmd="$PROJECT_DIR/test/vfd_swmr_dsetchks_reader"
+            writer_cmd="${PROJECT_DIR}/test/vfd_swmr_dsetchks_writer"
+            reader_cmd="${PROJECT_DIR}/test/vfd_swmr_dsetchks_reader"
             aux_proc_cmd="" # No aux process for dsetchks test
             generated_files="vfd_swmr_dsetchks.h5 dsetchks-shadow"
+
+            # configuration file path for HDF5_VFD_SWMR_CONFIG env variable
+            config_file=""
             ;;
         dsetops)
             swmr_shared_opts=(
@@ -278,10 +287,13 @@ configure_test_env() {
             done
             
             # Configure basic command paths
-            writer_cmd="$PROJECT_DIR/test/vfd_swmr_dsetops_writer"
-            reader_cmd="$PROJECT_DIR/test/vfd_swmr_dsetops_reader"
+            writer_cmd="${PROJECT_DIR}/test/vfd_swmr_dsetops_writer"
+            reader_cmd="${PROJECT_DIR}/test/vfd_swmr_dsetops_reader"
             aux_proc_cmd="" # No aux process for dsetops test
             generated_files="vfd_swmr_dsetops.h5 dsetops-shadow"
+
+            # configuration file path for HDF5_VFD_SWMR_CONFIG env variable
+            config_file=""
             ;;
         gfail)
             # Each -m value was increased to account for NFS latency compared to
@@ -302,10 +314,13 @@ configure_test_env() {
             done
 
             # Configure basic command paths
-            writer_cmd="$PROJECT_DIR/test/vfd_swmr_gfail_writer"
-            reader_cmd="$PROJECT_DIR/test/vfd_swmr_gfail_reader"
+            writer_cmd="${PROJECT_DIR}/test/vfd_swmr_gfail_writer"
+            reader_cmd="${PROJECT_DIR}/test/vfd_swmr_gfail_reader"
             aux_proc_cmd="" # No aux process for gfail test
             generated_files="vfd_swmr_group.h5 group-shadow"
+
+            # configuration file path for HDF5_VFD_SWMR_CONFIG env variable
+            config_file=""
             ;;
         
         group_basic) 
@@ -335,10 +350,13 @@ configure_test_env() {
             done
 
             # Configure basic command paths
-            writer_cmd="$PROJECT_DIR/test/vfd_swmr_group_writer"
-            reader_cmd="$PROJECT_DIR/test/vfd_swmr_group_reader"
+            writer_cmd="${PROJECT_DIR}/test/vfd_swmr_group_writer"
+            reader_cmd="${PROJECT_DIR}/test/vfd_swmr_group_reader"
             aux_proc_cmd="" # No aux process for group test
             generated_files="vfd_swmr_group.h5 group-shadow"
+
+            # configuration file path for HDF5_VFD_SWMR_CONFIG env variable
+            config_file=""
             ;;
         group_attrs) 
             # "group_attrs" test from test_vfd_swmr.sh uses vfd_swmr_group_{writer,reader}
@@ -373,6 +391,8 @@ configure_test_env() {
                     "-q -c 1 -n 1 -a 1 -A del-ohr-block"
                 )
             fi
+
+            # May need to increase -u value if NFS latency causes failures. 
             for i in "${!swmr_shared_opts[@]}"; do
                 swmr_shared_opts[$i]="${swmr_shared_opts[$i]} -u 20"
             done
@@ -387,10 +407,13 @@ configure_test_env() {
             done
             
             # Configure basic command paths
-            writer_cmd="$PROJECT_DIR/test/vfd_swmr_group_writer"
-            reader_cmd="$PROJECT_DIR/test/vfd_swmr_group_reader"
+            writer_cmd="${PROJECT_DIR}/test/vfd_swmr_group_writer"
+            reader_cmd="${PROJECT_DIR}/test/vfd_swmr_group_reader"
             aux_proc_cmd="" # No aux process for group test
             generated_files="vfd_swmr_group.h5 group-shadow"
+
+            # configuration file path for HDF5_VFD_SWMR_CONFIG env variable
+            config_file=""
             ;;
         os_group_attrs)
             # "os_group_attrs" test from test_vfd_swmr.sh uses vfd_swmr_group_{writer,reader}
@@ -432,10 +455,13 @@ configure_test_env() {
             done
 
             # Configure basic command paths
-            writer_cmd="$PROJECT_DIR/test/vfd_swmr_group_writer"
-            reader_cmd="$PROJECT_DIR/test/vfd_swmr_group_reader"
+            writer_cmd="${PROJECT_DIR}/test/vfd_swmr_group_writer"
+            reader_cmd="${PROJECT_DIR}/test/vfd_swmr_group_reader"
             aux_proc_cmd="" # No aux process for group test
             generated_files="vfd_swmr_group.h5 group-shadow"
+
+            # configuration file path for HDF5_VFD_SWMR_CONFIG env variable
+            config_file=""
             ;;
         zoo)
             # Set options
@@ -443,10 +469,13 @@ configure_test_env() {
             reader_opts=("-l 4 -q --ip_addr $IP_ADDRESS")
 
             # Configure basic command paths
-            writer_cmd="$PROJECT_DIR/test/vfd_swmr_zoo_writer"
-            reader_cmd="$PROJECT_DIR/test/vfd_swmr_zoo_reader"
+            writer_cmd="${PROJECT_DIR}/test/vfd_swmr_zoo_writer"
+            reader_cmd="${PROJECT_DIR}/test/vfd_swmr_zoo_reader"
             aux_proc_cmd="" # No aux process for zoo test
             generated_files="vfd_swmr_zoo.h5 zoo-shadow"
+
+            # configuration file path for HDF5_VFD_SWMR_CONFIG env variable
+            config_file=""
             ;;
         *)
             echo "Unknown test type: $1"
@@ -573,12 +602,15 @@ run_test() {
             # Clean up generated files from previous runs
             rm -f $generated_files
             
-            # Run writer command
-            printf "\nRUNNING WRITER CMD:\n  %s\n    %s\n" "$writer_cmd" "$opt"
-            $writer_cmd $opt
+            # print entire writer command
+            printf "\nRUNNING WRITER CMD:\n  HDF5_VFD_SWMR_CONFIG=%s %s %s\n" \
+                "$config_file" "$writer_cmd" "$opt"
+
+            # Run writer command with environment variables and options
+            HDF5_VFD_SWMR_CONFIG="$config_file" "$writer_cmd" $opt
             rc=$?
             
-            if [[ $rc -ne 0 ]]; then
+            if [[ "$rc" -ne 0 ]]; then
                 echo "ERROR: Writer command returned exit code: $rc"
                 nerrors=$((nerrors+1))
             else
@@ -609,12 +641,15 @@ run_test() {
                 sleep $WAIT_TIME
             fi
     
-            # Run reader command
-            printf "\nRUNNING READER CMD:\n  %s\n    %s\n" "$reader_cmd" "$opt"
-            $reader_cmd $opt
+            # print entire writer command
+            printf "\nRUNNING READER CMD:\n  HDF5_VFD_SWMR_CONFIG=%s %s %s\n" \
+                "$config_file" "$reader_cmd" "$opt"
+
+            # Run writer command with environment variables and options
+            HDF5_VFD_SWMR_CONFIG="$config_file" "$reader_cmd" $opt
             rc=$?
 
-            if [[ $rc -ne 0 ]]; then
+            if [[ "$rc" -ne 0 ]]; then
                 echo "ERROR: Reader command returned exit code: $rc"
                 nerrors=$((nerrors+1))
             else
