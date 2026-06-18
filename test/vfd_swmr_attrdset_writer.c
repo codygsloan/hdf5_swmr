@@ -41,7 +41,7 @@
 #include "hdf5.h"
 #include "testhdf5.h"
 #include "vfd_swmr_common.h"
-#include "H5Fprivate.h"
+#include "H5Fprivate.h" /* For configuration file */
 
 #ifndef H5_HAVE_WIN32_API
 
@@ -50,7 +50,9 @@
 /* Controls whether vfd configuration settings should be set 
  * using configuration file instead of using hardcoded 
  * configurations */
-#define USE_CONFIGURATION_FILE 1
+/* Configuration file usage disabled for now so we don't have to update build tests yet. \
+ * Will be implemented in the future -- Cody S. 6/18/26 */
+/* #define USE_CONFIGURATION_FILE 1 */
 
 /* Structure to hold info for options specified */
 typedef struct {
@@ -1768,8 +1770,8 @@ sock_reader(hbool_t result, unsigned step, const state_t *s, socket_state_t *soc
             }
             goto error;
         }
-        /* The verification succeeds */
-    }
+        
+    } /* The verification succeeds */
     else {
         if (step % s->csteps == 0) {
             /* Send back the same notify value for acknowledgement:
@@ -1900,28 +1902,55 @@ main(int argc, char **argv)
         TEST_ERROR;
     }
 #ifdef USE_CONFIGURATION_FILE
+
+    if (!s->use_vfd_swmr) {
+        /* When VFD SWMR is disabled, perform only the normal FAPL/FCPL setup. The 
+        * configuration-file initialization also sets a VFD SWMR configuration on 
+        * the property lists, which should not happen when use_vfd_swmr is false. 
+        * We still need the usual property list configuration (libver bounds, page 
+        * buffer size, file space settings, etc.), so those steps are performed 
+        * separately here.
+        */
+        
+        /* config, tick_len, max_lag, presume_posix_semantics, writer,
+        * maintain_metadata_file, generate_updater_files, flush_raw_data, md_pages_reserved,
+        * md_file_path, md_file_name, updater_file_path */
+        init_vfd_swmr_config(config, 4, 7, FALSE, writer, TRUE, FALSE, TRUE, 128, "./", "attrdset-shadow", NULL);
+
+        /* use_latest_format, use_vfd_swmr, only_meta_page, page_buf_size, config */
+        if ((fapl = vfd_swmr_create_fapl(TRUE, s->use_vfd_swmr, TRUE, 4096, config)) < 0) {
+            HDprintf("vfd_swmr_create_fapl() failed\n");
+            TEST_ERROR;
+        }
+        /* Set fs_strategy (file space strategy) and fs_page_size (file space page size) */
+        if ((fcpl = vfd_swmr_create_fcpl(H5F_FSPACE_STRATEGY_PAGE, 4096)) < 0) {
+            HDprintf("vfd_swmr_create_fcpl() failed\n");
+            TEST_ERROR;
+        }
+
+
+    } else {
+        /* This was originally called in vfd_swmr_create_fapl() */
+        if ((fapl = h5_fileaccess()) < 0) {
+            HDprintf("h5_fileaccess() failed\n");
+            TEST_ERROR;
+        }
+        /* This was originally called in vfd_swmr_create_fcpl() */
+        if ((fcpl = H5Pcreate(H5P_FILE_CREATE)) < 0) {
+            HDprintf("H5Pcreate() failed\n");
+            TEST_ERROR;
+        }
+        /* Use writer bool both for writer and create_file boolean parameters */
+        if (H5F_load_vfd_swmr_config_from_env_var(fapl, fcpl, writer, writer, NULL) < 0) {
+            HDprintf("H5F_load_vfd_swmr_config_from_env_var() failed\n");
+            TEST_ERROR;
+        }
     
-    /* This was originally called in vfd_swmr_create_fapl() */
-    if ((fapl = h5_fileaccess()) < 0) {
-        HDprintf("h5_fileaccess() failed\n");
-        TEST_ERROR;
-    }
-    /* This was originally called in vfd_swmr_create_fcpl() */
-    if ((fcpl = H5Pcreate(H5P_FILE_CREATE)) < 0) {
-        HDprintf("H5Pcreate() failed\n");
-        TEST_ERROR;
-    }
-
-    /* Use writer bool both for writer and create_file boolean parameters */
-    if (H5F_load_vfd_swmr_config_from_env_var(fapl, fcpl, writer, writer, NULL) < 0) {
-        HDprintf("H5F_load_vfd_swmr_config_from_env_var() failed\n");
-        TEST_ERROR;
-    }
-
-    /* config values are still needed later in this program */
-    if (H5Pget_vfd_swmr_config(fapl, config) < 0) {
-        HDprintf("H5Pget_vfd_swmr_config() failed\n");
-        TEST_ERROR;
+        /* config values are still needed later in this program */
+        if (H5Pget_vfd_swmr_config(fapl, config) < 0) {
+            HDprintf("H5Pget_vfd_swmr_config() failed\n");
+            TEST_ERROR;
+        }
     }
 
 #else /* USE_CONFIGURATION_FILE */
